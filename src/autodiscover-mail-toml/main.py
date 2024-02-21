@@ -31,7 +31,6 @@ def get_config(domain: str = "", local: str = ""):
 
 
 def get_context(config, domain: str = "", local: str = ""):
-    print(config.keys())
     if domain:
         if domain not in config.get("provider", {}).get("domains", []):
             if domain not in config.get("domain", {}).keys():
@@ -77,7 +76,7 @@ def craft_xml(emailaddress: str = ""):
     {% if imap_auth is defined %}
         {% for auth in imap_auth %}<authentication>{{ auth }}</authentication>{% endfor %}
     {% endif %}
-  </incomingServer type="imap">
+  </incomingServer>
   <outgoingServer type="smtp">
     {% if smtp_host is defined %}<hostname>{{ smtp_host }}</hostname>{% endif %}
     {% if smtp_port is defined %}<port>{{ smtp_port }}</port>{% endif %}
