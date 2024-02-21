@@ -13,9 +13,11 @@ readme = "README.md"
 license = {file = "LICENSE"}
 requires-python = ">=3.11"
 classifiers = [
-    "Programming Language :: Python :: 3",
     "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
     "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Topic :: Internet :: WWW/HTTP :: WSGI :: Application",
+    "Topic :: Communications :: Email"
 ]
 
 [project.urls]
