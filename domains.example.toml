@@ -1,0 +1,27 @@
+# See https://wiki.mozilla.org/Thunderbird:Autoconfiguration:ConfigFileFormat
+#  for keywords and choices
+
+[provider]
+    name_display='example.org Mail Services - some relevant mission statement'
+    name_short='example.org mail'
+    imap_type='starttls'
+    imap_host='imap.example.org'
+    imap_port=143
+    imap_auth=[ 'password-cleartext' ]
+    smtp_type='starttls'
+    smtp_host='smtp.example.org'
+    smtp_port=587
+    smtp_auth=[ 'password-cleartext' ]
+    username='%EMAILADDRESS%'
+    domains=['example.org', 'users.example.org']
+
+[domain.'subdomain.example.org']
+    username='%EMAILLOCALPART%_test_accounts'
+    imap_host='test.mail.example.org'
+
+[user.'ceo@example.org']
+    username='%EMALLOCALPART%-example@office365.example.org'
+    imap_host='rain-cloud.example.org'
+    smtp_host='smtp.example.org'
+    imap_auth=[ 'password-cleartext', 'OAuth2' ]
+    smtp_auth=[ 'password-cleartext', 'OAuth2' ]

@@ -1,0 +1,22 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "autodiscover-mail-toml"
+version = "1.0.0"
+authors = [
+  { name="Julia Brunenberg", email="julia@jjim.de" },
+]
+description = "A small web service to serve autodiscovery config for small mail services"
+readme = "README.md"
+requires-python = ">=3.11"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
+    "Operating System :: OS Independent",
+]
+
+[project.urls]
+Homepage = "https://github.com/juliadin/autodiscover-mail-toml"
+Issues = "https://github.com/juliadin/autodiscover-mail-toml/issues"
