@@ -24,7 +24,7 @@ app = FastAPI()
 config_file = pathlib.Path("./domains.toml")
 
 
-def get_config(domain: str = None, local: str = ""):
+def get_config(domain: str = "", local: str = ""):
     config = tomllib.loads(config_file.read_text())
     context = get_context(config, domain, local)
     return context
