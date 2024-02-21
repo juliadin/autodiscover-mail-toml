@@ -63,7 +63,7 @@ def craft_xml(emailaddress: str = ""):
     return jinja2.Template(
         """<?xml version="1.0"?>
 <clientConfig version="1.1">
- <emailProvider>
+ <emailProvider id="{{ id|default('provider') }}">
 {% for domain in domains %}
     <domain>{{ domain }}</domain>
 {% endfor %}
@@ -73,19 +73,18 @@ def craft_xml(emailaddress: str = ""):
     {% if imap_host is defined %}<hostname>{{ imap_host }}</hostname>{% endif %}
     {% if imap_port is defined %}<port>{{ imap_port }}</port>{% endif %}
     {% if imap_type is defined %}<socketType>{{ imap_type }}</socketType>{% endif %}
+    {% if username is defined %}<username>{{ username }}</username>{% endif %}
     {% if imap_auth is defined %}
         {% for auth in imap_auth %}<authentication>{{ auth }}</authentication>{% endfor %}
     {% endif %}
-    {% if username is defined %}<username>{{ username }}</username>{% endif %}
-  </incomingServer>
   <outgoingServer type="smtp">
     {% if smtp_host is defined %}<hostname>{{ smtp_host }}</hostname>{% endif %}
     {% if smtp_port is defined %}<port>{{ smtp_port }}</port>{% endif %}
     {% if smtp_type is defined %}<socketType>{{ smtp_type }}</socketType>{% endif %}
+    {% if username is defined %}<username>{{ username }}</username>{% endif %}
     {% if smtp_auth is defined %}
         {% for auth in smtp_auth %}<authentication>{{ auth }}</authentication>{% endfor %}
     {% endif %}
-    {% if username is defined %}<username>{{ username }}</username>{% endif %}
   </outgoingServer>
   </emailProvider>
 </clientConfig>"""
