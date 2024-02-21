@@ -77,6 +77,7 @@ def craft_xml(emailaddress: str = ""):
     {% if imap_auth is defined %}
         {% for auth in imap_auth %}<authentication>{{ auth }}</authentication>{% endfor %}
     {% endif %}
+  </incomingServer type="imap">
   <outgoingServer type="smtp">
     {% if smtp_host is defined %}<hostname>{{ smtp_host }}</hostname>{% endif %}
     {% if smtp_port is defined %}<port>{{ smtp_port }}</port>{% endif %}
