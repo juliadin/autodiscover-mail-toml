@@ -5,11 +5,11 @@
     name_display='example.org Mail Services - some relevant mission statement'
     name_short='example.org mail'
     id='example.org'
-    imap_type='starttls'
+    imap_type='STARTTLS'
     imap_host='imap.example.org'
     imap_port=143
     imap_auth=[ 'password-cleartext' ]
-    smtp_type='starttls'
+    smtp_type='STARTTLS'
     smtp_host='smtp.example.org'
     smtp_port=587
     smtp_auth=[ 'password-cleartext' ]
