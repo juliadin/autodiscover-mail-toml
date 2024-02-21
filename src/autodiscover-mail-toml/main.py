@@ -21,7 +21,7 @@ import jinja2
 
 app = FastAPI()
 
-config_file = pathlib.Path("../../domains.toml")
+config_file = pathlib.Path("domains.toml")
 
 
 def get_config(domain: str = "", local: str = ""):
