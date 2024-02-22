@@ -1,5 +1,7 @@
 """Small WSGI service to implement Mozilla autodiscovery for small mail providers"""
 
+import dataclasses
+
 #     Copyright (C) 2024  Julia Brunenberg
 #
 #     This program is free software: you can redistribute it and/or modify
@@ -27,74 +29,104 @@ app = FastAPI()
 config_file = pathlib.Path("domains.toml")
 
 
-def get_config(domain: str = "", local: str = "") -> dict[str, str | list[str]]:
+@dataclasses.dataclass(frozen=True, kw_only=True)
+class EmailAddress:
+    full: str
+    domain: str
+    local_part: str
+
+    @classmethod
+    def from_string(cls, address: str) -> "EmailAddress":
+        try:
+            local_part, domain = address.split("@")
+        except ValueError:
+            local_part, domain = ("", "")
+        return cls(full=address, domain=domain, local_part=local_part)
+
+
+def get_config(email_address: EmailAddress) -> dict[str, str | list[str]]:
     """Open, parse and layer the config for the current request
     and return the context to be used in jinja
 
-    :param domain: The domain name of the email address requested
-    :type domain: str
-    :param local: The local part of the email address requested
-    :type local: str
+    :param email_address: The email address to generate the context for
+    :type email_address: EmailAddress
     :return: The jinja2.Context to be used in jinja
     :rtype: dict[str, str | list[str]]
     """
     config = tomllib.loads(config_file.read_text(encoding="utf-8"))
-    context = get_context(config, domain, local)
+    context = get_context(config, email_address)
     return context
 
 
+def deep_replace(context: dict[str, str | list[str]]) -> dict[str, str | list[str]]:
+    for key, value in context.items():
+        if isinstance(value, list):
+            new_value = []
+            for item in value:
+                new_value.append(string_replace(item))
+            context[key] = new_value
+        if isinstance(value, str):
+            context[key] = string_replace(value)
+
+    return context
+
+
+def string_replace(string: str) -> str:
+    string = string.replace("#")
+    return string
+
+
 def get_context(
-    config: dict[Any, Any], domain: str = "", local: str = ""
+    config: dict[Any, Any], email_address: EmailAddress
 ) -> dict[str, str | list[str]]:
     """Layer the context to be used in jinja
 
-        user.<emailaddress> takes precedence over
-        domain.<domainname> takes precedence over
+        user.<email_address> takes precedence over
+        domain.<domain_name> takes precedence over
         provider
 
     :param config: The parsed toml as dict
-    :param domain: The domain name of the email address requested
-    :type domain: str
-    :param local: The local part of the email address requested
-    :type local: str
+    :param email_address: The email address to generate the context for
+    :type email_address: EmailAddress
     :return: The dict to be used in the jinja2 template
     :rtype: dict[str, str | list[str]]
     """
-    if domain:
-        if domain not in config.get("provider", {}).get("domains", []):
-            if domain not in config.get("domain", {}).keys():
-                if f"{local}@{domain}" not in config.get("user", {}).keys():
+    if email_address.domain:
+        if email_address.domain not in config.get("provider", {}).get("domains", []):
+            if email_address.domain not in config.get("domain", {}).keys():
+                if (
+                    f"{email_address.local_part}@{email_address.domain}"
+                    not in config.get("user", {}).keys()
+                ):
                     raise HTTPException(status_code=404, detail="No such configuration")
     base = config["provider"].copy()
     try:
-        for key in config["domain"][domain].keys():
-            base[key] = config["domain"][domain][key]
-        base["domains"] = [domain]
+        for key in config["domain"][email_address.domain].keys():
+            base[key] = config["domain"][email_address.domain][key]
+        base["domains"] = [email_address.domain]
     except KeyError:
         pass
     try:
-        addr = f"{local}@{domain}"
+        addr = f"{email_address.local_part}@{email_address.domain}"
         for key in config["user"][addr].keys():
             base[key] = config["user"][addr][key]
-        base["domains"] = [domain]
+        base["domains"] = [email_address.domain]
     except KeyError:
         pass
+
     return base
 
 
-def craft_xml(emailaddress: str = ""):
-    """Generate an XML string from the email address by tempating it with the resulting context
+def craft_mozilla_xml(email_address: EmailAddress = EmailAddress.from_string("")):
+    """Generate an XML string from the email address by templating it with the resulting context
+    Format taken from https://wiki.mozilla.org/Thunderbird:Autoconfiguration:ConfigFileFormat
 
-    :param emailaddress: The email address of the request
-    :type emailaddress: str
+    :param email_address: The email address of the request
+    :type email_address: str
     :return: The XML string
     :rtype: str
     """
-    try:
-        local, domain = emailaddress.split("@")
-    except ValueError:
-        local, domain = ("", "")
-    config = get_config(domain, local)
+    config = get_config(email_address)
     return jinja2.Template(
         """<?xml version="1.0"?>
 <clientConfig version="1.1">
@@ -130,4 +162,7 @@ def craft_xml(emailaddress: str = ""):
 @app.get("/mail/config-v1.1.xml")
 async def get_xml(emailaddress: str = ""):
     """the xml document for auto-configuration"""
-    return Response(craft_xml(emailaddress=emailaddress), media_type="application/xml")
+    return Response(
+        craft_mozilla_xml(email_address=EmailAddress.from_string(emailaddress)),
+        media_type="application/xml",
+    )
