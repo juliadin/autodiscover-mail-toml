@@ -1,2 +1,4 @@
 domains.toml
 .venv
+build
+*.egg-info

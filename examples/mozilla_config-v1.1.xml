@@ -123,41 +123,6 @@
 
     </emailProvider>
 
-    <!-- Syncronize the user's address book / contacts. Not implemented. Thunderbird uses RFC 6764 to do auto discovery. -->
-    <!-- TODO: delete this section!! -->
-    <addressBook type="carddav">
-      <username>%EMAILADDRESS%</username>
-         <!-- Authentication methods. See also <incomingServer>.
-              "http-basic":
-                        Authenticate to the HTTP server using
-                        WWW-Authenticate: Basic
-              "http-digest":
-                        Authenticate to the HTTP server using
-                        WWW-Authenticate: Digest
-              "OAuth2":
-                        OAuth2. Uses the same token as for email.
-              -->
-      <authentication>http-basic</authentication>
-      <serverURL>https://contacts.example.com/remote.php/dav<serverURL>
-    </addressBook>
-
-    <!-- Syncronize the user's calendar. Not implemented. Thunderbird uses RFC 6764 to do auto discovery. -->
-    <!-- TODO: delete this section!! -->
-    <calendar type="caldav">
-      <username>%EMAILADDRESS%</username>
-      <authentication>http-basic</authentication> <!-- see <addressBook> -->
-      <serverURL>https://calendar.example.com/remote.php/dav<serverURL>
-    </calendar>
-
-    <!-- Upload files, allowing the user to share them. Not implemented.
-         This can be used for Thunderbird's FileLink feature,
-         or to set up a file sync folder on the user's desktop. -->
-    <!-- TODO: delete this section!! Obsoleted by RFC 6764. -->
-    <fileShare type="webdav">
-      <username>%EMAILADDRESS%</username>
-      <authentication>http-basic</authentication> <!-- see <addressBook> -->
-      <serverURL>https://share.example.com/remote.php/dav<serverURL>
-    </fileShare>
 
     <!-- This allows to access the webmail service of the provider.
          The URLs are loaded into a standard webbrowser for the user.
