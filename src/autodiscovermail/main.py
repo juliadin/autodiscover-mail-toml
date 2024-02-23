@@ -92,7 +92,6 @@ def get_context(
     context = config.Provider()
     context.update_from_config(base)
     context.resolve_references()
-    logger.warning(context)
     return context.__dict__
 
 

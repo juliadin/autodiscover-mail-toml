@@ -51,33 +51,32 @@ class ConfigClass:
         for key in self.__dict__.keys():
             v = self.__dict__.get(key)
             if isinstance(v, ConfigClass):
-                logger.warning(f"looking up references for {name} in {key}")
+                logger.info(f"looking up references for {name} in {key}")
                 try:
                     new_name = v.self_reference(name, lookup_source=lookup_source)
                 except KeyError:
                     pass
         if name in self.static_references.keys():
-            logger.warning(
+            logger.debug(
                 f" found {self.static_references[name]} in static keys for {name}"
             )
             new_name = self.static_references[name]
         lookup = name.strip(self.prefix)
-        logger.warning(f"looking up references for {lookup} locally")
+        logger.info(f"looking up references for {lookup} locally")
         if lookup in self.__dict__.keys():
-            logger.warning(f" found {self.__dict__[lookup]} locally for {lookup}")
+            logger.debug(f" found {self.__dict__[lookup]} locally for {lookup}")
             new_name = self.__dict__[lookup]
-        logger.warning(f" Returning {new_name}")
+        logger.debug(f" Returning {new_name}")
         if new_name is None:
             raise KeyError(f"{name} not found")
         return self.value_proxy(new_name, lookup_source=lookup_source)
 
     def value_proxy(self, name: str, lookup_source: "ConfigClass") -> typing.Any:
-        logger.warning(f"{self}")
 
         new_value: str = name
         for placeholder_match in value_match.finditer(new_value):
             matched_string = placeholder_match.expand(value_template)
-            logger.warning(f"looking up {matched_string} in '{new_value}'")
+            logger.debug(f"looking up {matched_string} in '{new_value}'")
             try:
                 replacement = lookup_source.self_reference(
                     placeholder_match.groupdict()["name"], lookup_source=lookup_source
@@ -86,7 +85,7 @@ class ConfigClass:
                 raise
             else:
                 new_value = new_value.replace(matched_string, replacement)
-        logger.warning(f"{self.__class__.__name__} returns {new_value}")
+        logger.debug(f"{self.__class__.__name__} returns {new_value}")
         return new_value
 
 
