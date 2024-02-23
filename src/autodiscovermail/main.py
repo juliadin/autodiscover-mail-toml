@@ -4,6 +4,7 @@ import logging
 import pathlib
 import tomllib
 from . import config
+from . import template
 import jinja2
 
 from typing import Any
@@ -42,8 +43,8 @@ def get_config(email_address: config.EmailAddress) -> dict[str, str | list[str]]
     :return: The jinja2.Context to be used in jinja
     :rtype: dict[str, str | list[str]]
     """
-    config = tomllib.loads(config_file.read_text(encoding="utf-8"))
-    context = get_context(config, email_address)
+    config_data = tomllib.loads(config_file.read_text(encoding="utf-8"))
+    context = get_context(config_data, email_address)
     return context
 
 
@@ -106,33 +107,8 @@ def craft_mozilla_xml(
     :return: The XML string
     :rtype: str
     """
-    config = get_config(email_address)
-    return jinja2.Template(
-        """<?xml version="1.0"?>
-<clientConfig version="1.1">
- <emailProvider id="{{ id|default('provider') }}">
-{% for domain in domains %}
-    <domain>{{ domain }}</domain>
-{% endfor %}
-    {% if name_display is defined %}<displayName>{{ name_display }}</displayName>{% endif %}
-    {% if name_short is defined %}<displayShortName>{{ name_short }}</displayShortName>{% endif %}
-  <incomingServer type="{{ in_server.type }}">
-    <hostname>{{ in_server.host }}</hostname>
-    <port>{{ in_server.port }}</port>
-    <socketType>{{ in_server.type }}</socketType>
-    <username>{{ in_server.user }}</username>
-        {% for auth in in_server.auth %}<authentication>{{ auth }}</authentication>{% endfor %}
-  </incomingServer>
-  <outgoingServer type="{{ out_server.type }}">
-    <hostname>{{ out_server.host }}</hostname>
-    <port>{{ out_server.port }}</port>
-    <socketType>{{ out_server.type }}</socketType>
-    <username>{{ out_server.user }}</username>
-        {% for auth in out_server.auth %}<authentication>{{ auth }}</authentication>{% endfor %}
-  </outgoingServer>
-  </emailProvider>
-</clientConfig>"""
-    ).render(config)
+    config_data = get_config(email_address)
+    return jinja2.Template(template.get("config-v1.1.xml")).render(config_data)
 
 
 @app.get("/mail/config-v1.1.xml")
